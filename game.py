@@ -1,3 +1,6 @@
+# https://www.codewars.com/kata/67ca09c53513c2e514fdf3d4
+
+
 ROWS = 7
 COLS = 6
 
@@ -27,73 +30,93 @@ def print_board(board):
     print(' ------------- \n  1 2 3 4 5 6  ')
 
 
-def horizontal(board, player):
+def input_player_letter(muha):
+    player = input(f"{muha} player's letter -> ")
+    if player.isalpha():
+        return player
+    else:
+        print("Incorrect! Only letters are allowed.")
+        return input_player_letter()
+
+
+def horizontal(board):
     for line in board:
-        prev = player
-        count = 0
-        for sym in line:
-            if sym == prev:
-                count += 1
-                if count == 4:
-                    return True
-            else:
-                count = 0
-                prev = sym
+        for i in range(3):
+            if ' ' != line[i] == line[i + 1] == line[i + 2] == line[i + 3]:
+                return True
+
+
+def vertical(board, player):
+    for col in range(6):
+        for row in range(4):
+            if player == board[row][col] == board[row + 1][col] == board[row + 2][col] == board[row + 3][col]:
+                return True
+
+"""
+    +1 row
+    +1 col
+    1 | s s s       |
+    2 | s s s       |
+    3 | s s s       |
+    4 | s s s       |
+    5 |             |
+    6 |             |
+    7 |             |
+       ------------- 
+        1 2 3 4 5 6  
+    """
+def check_d1(board, player):
+    
+    for row in range(4):
+        for col in range(3):
+            if player == board[row][col] == board[row + 1][col + 1] == board[row + 2][col + 2] == board[row + 3][col + 3]:
+                return True
+
+
+def check_d2(board, player):
+    for row in range(3, 7):
+        for col in range(3):
+            if player == board[row][col] == board[row - 1][col + 1] == board[row - 2][col + 2] == board[row - 3][col + 3]:
+                return True
 
 
 def diagonal(board, player):
-    # left-upper corner    to    right-bottom corner 
+    if check_d1(board, player):
+        return True
+    if check_d2(board, player):
+        return True
 
-    # [6][3] [5][2] [4][1] [3][0]
-    # [6][4] [5][3] [4][2] [3][1] [2][0]
-    # [6][5] [5][4] [4][3] [3][2] [2][1] [1][0]
-    # [6][6] [5][5] [4][4] [3][3] [2][2] [1][1] [2][0] 
-
-    # [5][3] [4][2] [3][1] [2][0]
-    # [5][4] [4][3] [3][2] [2][1] [2][0]
-    # [5][5] [4][4] [3][3] [2][2] [2][1] [2][0]
-    # [5][6] [4][5] [3][4] [2][3] [2][2] [2][1] [2][0]
-
-    # [4][3] [3][2] [2][1] [1][0]
-    # [4][4] [3][3] [2][2] [1][1] [0][0]
-    # [4][5] [3][4] [2][3] [1][2] [0][1]
-    # [4][6] [3][5] [2][4] [1][3] [0][2]
-    """
-    0 |             |
-    1 | o       x   |
-    2 |   o   x     |
-    3 | x   x       |
-    4 |   x   o     |
-    5 |     x x o   |
-    6 | x x o x x o |
-      ---------------
-        0 1 2 3 4 5
-    """
 
 def for_the_win(board, player):
-    if horizontal(board, player) or diagonal(board, player):
+    if horizontal(board) or vertical(board, player) or diagonal(board, player):
         return True
     return False
 
 
-def place_letter(board, player, column: int):
+def place_letter(board, player: str, column: int):
+    # [0] ' ' ' ' ' '
+    # [1] 'x' ' ' 'x'
+    # [2] 'o' ' ' 'o'
     for line in board[::-1]:
-        if line [column - 1] == ' ':
+        if line[column - 1] == ' ':
             line[column - 1] = player
+            print("Assigned")
             return True
+
     print("This column is full!")
     return False
 
 
 def player_move(board, player):
-    move = input("Please select column -> ")
-    if not move.isalpha() or move in range(1, 7):
+    move = input(f"Please select column({player}) -> ")
+    if move.isnumeric() and move in ['1', '2', '3', '4', '5', '6']:
         if not place_letter(board, player, int(move)):
             print("Please select an empty column!")
-            return player_move
+        else:
+            return
     else:
-        print("Please select one number, 1, 2, 3, 4, 5 or 6!")
-    return player_move()
+        print("Please select one number: 1, 2, 3, 4, 5 or 6!")
+    player_move(board, player)
 
 
 def tie(board):
@@ -108,17 +131,36 @@ def input_player_letter(muha):
     if player.isalpha():
         return player
     else:
-        print("Incorrect! Only letters are allowed.")
-        return input_player_letter()
+        print("Incorrect! Only letters are allowed!")
+        return input_player_letter(muha)
 
 
 player1 = input_player_letter(" First")
 player2 = input_player_letter("Second")
 
-board = [[' '] * COLS] * ROWS
+# board = [[' '] * COLS] * ROWS
 
-while not tie():
-    place_letter(board, player1)
+board = [[' ', ' ', ' ', ' ', ' ', ' '], #1
+         [' ', ' ', ' ', ' ', ' ', ' '], #2
+         [' ', ' ', ' ', ' ', ' ', ' '], #3
+         [' ', ' ', ' ', ' ', ' ', ' '], #4
+         [' ', ' ', ' ', ' ', ' ', ' '], #5
+         [' ', ' ', ' ', ' ', ' ', ' '], #6
+         [' ', ' ', ' ', ' ', ' ', ' '],]#7
+
+print_board(board)
+
+while not tie(board):
+    player_move(board, player1)
     print_board(board)
-    horizontal()
+    if for_the_win(board, player1):
+        print(f"Player {player1} has won!")
+        break
+    player_move(board, player2)
+    print_board(board)
+    if for_the_win(board, player2):
+        print(f"Player {player2} has won!")
+        break
+else:
+    print(f"It's a tie")
 
